@@ -99,19 +99,32 @@ def rss():
         posts = notion_service.get_blog_posts()
         cache.set("all_posts", posts)
         
+    # Limit RSS to the last 15 posts for performance
+    latest_posts = posts[:15]
+        
     fg = FeedGenerator()
     fg.id(Config.BASE_URL)
     fg.title(Config.BLOG_NAME)
     fg.description(Config.BLOG_DESCRIPTION)
     fg.link(href=Config.BASE_URL, rel='alternate')
     
-    for post in posts:
+    for post in latest_posts:
+        # Fetch full content for RSS
+        content_blocks = notion_service.get_post_content(post['id'])
+        html_content = notion_parser.blocks_to_html(content_blocks)
+        
         fe = fg.add_entry()
         fe.id(f"{Config.BASE_URL}/post/{post['slug']}")
         fe.title(post['title'])
         fe.link(href=f"{Config.BASE_URL}/post/{post['slug']}")
+        fe.content(html_content, type='html') # Full HTML content
+        
         if post['date']:
-            fe.published(datetime.strptime(post['date'], '%Y-%m-%d').replace(tzinfo=None))
+            try:
+                dt = datetime.strptime(post['date'], '%Y-%m-%d')
+                fe.published(dt.replace(tzinfo=None))
+            except:
+                pass
             
     return Response(fg.rss_str(pretty=True), mimetype='application/xml')
 
