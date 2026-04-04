@@ -1,36 +1,121 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title or 'Marcos Tech Blog' }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Prism.js or Highlight.js could be added here for code highlighting -->
     <meta name="description" content="{{ description or 'A minimalist blog powered by Notion API.' }}">
 </head>
 <body>
-    <header>
-        <div class="container nav-container">
-            <a href="{{ url_for('index') }}" class="site-title">{{ config.BLOG_NAME }}</a>
-            <nav>
-                <a href="{{ url_for('index') }}">Home</a>
-                <a href="{{ url_for('rss') }}">RSS</a>
-                <a href="https://github.com/vudovn/ag-kit" target="_blank">GitHub</a>
-            </nav>
+    <header class="main-header">
+        <div class="container header-content">
+            <a href="{{ url_for('index') }}" class="site-logo">{{ config.BLOG_NAME }}</a>
+            
+            <div class="header-actions">
+                <a href="https://github.com/marcosviniicius" target="_blank" class="icon-link" title="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77 5.44 5.44 0 0 0 3.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                </a>
+                <a href="{{ url_for('rss') }}" class="icon-link" title="RSS Feed">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16M6 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>
+                </a>
+                <button id="theme-toggle" class="icon-link" title="Toggle Dark/Light Mode">
+                    <svg id="moon-icon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path></svg>
+                    <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                </button>
+                <button id="menu-toggle" class="icon-link" title="Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
         </div>
     </header>
 
+    <!-- Mobile Overlay Menu -->
+    <div id="mobile-overlay" class="overlay">
+        <div class="overlay-header">
+            <a href="{{ url_for('index') }}" class="site-logo">{{ config.BLOG_NAME }}</a>
+            <div class="overlay-actions">
+                 <button id="menu-close" class="icon-link" title="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+        <div class="overlay-content">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search..." aria-label="Search posts">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
+            <nav class="overlay-nav">
+                <div class="archive-list">
+                    {% block sidebar %}{% endblock %}
+                </div>
+            </nav>
+        </div>
+    </div>
+
     <main class="container">
-        {% block content %}{% endblock %}
+        <section class="main-content">
+            {% block content %}{% endblock %}
+        </section>
     </main>
 
     <footer class="container">
         <p>&copy; {{ now.year }} {{ config.BLOG_NAME }}. Powered by Notion API & Flask.</p>
     </footer>
 
-    <!-- Simple injected context for footer year -->
     <script>
-        document.querySelector('footer p').innerHTML = '&copy; ' + new Date().getFullYear() + ' {{ config.BLOG_NAME }}. Powered by Notion API & Flask.';
+        // Dark Mode Toggle Logic
+        const body = document.body;
+        const html = document.documentElement;
+        const themeToggle = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+
+        function updateTheme(isDark) {
+            if (isDark) {
+                html.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Initialize theme from storage
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        updateTheme(savedTheme === 'dark');
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = html.classList.contains('dark');
+            updateTheme(!isDark);
+        });
+
+        // Mobile Menu Control logic
+        const menuToggle = document.getElementById('menu-toggle');
+        const menuClose = document.getElementById('menu-close');
+        const overlay = document.getElementById('mobile-overlay');
+
+        menuToggle.addEventListener('click', () => {
+            overlay.classList.add('active');
+            body.classList.add('menu-open');
+        });
+
+        menuClose.addEventListener('click', () => {
+            overlay.classList.remove('active');
+            body.classList.remove('menu-open');
+        });
+
+        // Close overlay on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && overlay.classList.contains('active')) {
+                overlay.classList.remove('active');
+                body.classList.remove('menu-open');
+            }
+        });
     </script>
 </body>
 </html>

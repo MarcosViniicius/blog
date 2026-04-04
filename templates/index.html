@@ -1,28 +1,50 @@
 {% extends "base.html" %}
 
+{% block sidebar %}
+<div class="archive-nav">
+    <h3>Archive</h3>
+    <ul class="nav-list">
+        {% for year_group in grouped_posts %}
+        <li class="nav-year">
+            <a href="#year-{{ year_group.year }}">
+                {{ year_group.year }}s
+            </a>
+            <!-- Sub-menu for months could be added here if desired -->
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
 {% block content %}
-<div class="archive">
+<div class="archive-container">
     {% for year_group in grouped_posts %}
-        <section class="year-group">
+        <section class="year-group" id="year-{{ year_group.year }}">
             <h2 class="year-title">{{ year_group.year }}</h2>
             
             {% for month_group in year_group.months %}
-                <div class="month-group">
+                <div class="month-group" id="archive-{{ year_group.year }}-{{ month_group.name }}">
                     <h3 class="month-title">{{ month_group.name }}</h3>
                     
-                    {% for post in month_group.posts %}
-                        <div class="post-item">
-                            <span class="date">{{ post.date }}</span>
-                            <a href="{{ url_for('post_detail', slug=post.slug) }}">{{ post.title }}</a>
-                        </div>
-                    {% endfor %}
+                    <div class="posts-list">
+                        {% for post in month_group.posts %}
+                            <div class="post-item">
+                                <span class="date">{{ post.date or post.last_edited[:10] }}</span>
+                                <a href="{{ url_for('post_detail', slug=post.slug) }}" class="post-title-link">
+                                    {{ post.title }}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             {% endfor %}
         </section>
     {% endfor %}
     
     {% if not grouped_posts %}
-        <p>No posts found yet. Check your Notion connection!</p>
+        <div class="empty-state">
+            <p>No content found in Notion. Time to write something amazing!</p>
+        </div>
     {% endif %}
 </div>
 {% endblock %}
