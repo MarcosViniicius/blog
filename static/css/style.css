@@ -238,19 +238,34 @@ a {
 }
 
 .desktop-sidebar {
-    flex: 0 0 220px;
+    flex: 0 0 250px;
     display: block;
+    align-self: stretch; /* Crucial for sticky container to have the same height as content */
 }
 
 .sidebar-sticky {
+    position: -webkit-sticky; /* Support for Safari */
     position: sticky;
-    top: 6rem;
+    top: 100px; /* Adjust based on your header height */
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 1rem;
+    z-index: 10;
+}
+
+/* Custom scrollbar for ToC */
+.sidebar-sticky::-webkit-scrollbar {
+    width: 3px;
+}
+.sidebar-sticky::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
 }
 
 .main-content {
     flex: 1;
     min-width: 0;
-    padding: 2rem 0;
+    padding: 2rem 0 8rem;
 }
 
 /* Hide desktop sidebar on smaller screens */
@@ -263,12 +278,28 @@ a {
     }
 }
 
-/* --- Archive Sidebar Styling (Akita Style) --- */
+/* --- Archive & ToC Sidebar Styling (Akita Style) --- */
 .archive-nav h3 {
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    color: var(--heading-color);
+    color: var(--muted-text);
     margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.toc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem !important;
+}
+
+.toc-item.level-3 {
+    padding-left: 0.75rem;
+}
+
+.toc-item.level-4 {
+    padding-left: 1.5rem;
 }
 
 .archive-list-flat {
@@ -280,11 +311,12 @@ a {
 
 .archive-link {
     font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--muted-text);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #94a3b8;
     transition: color 0.2s;
-    white-space: nowrap;
+    line-height: 1.4;
+    display: block;
 }
 
 .archive-link:hover {
@@ -314,10 +346,13 @@ article .metadata {
     color: var(--muted-text);
 }
 
+/* Remove global overflow-x which breaks position: sticky */
 html, body {
-    overflow-x: hidden;
     width: 100%;
-    position: relative;
+}
+
+body {
+    overflow-x: clip; /* Modern alternative that doesn't break sticky, or just remove if not needed */
 }
 
 .post-content {

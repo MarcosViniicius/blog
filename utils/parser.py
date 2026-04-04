@@ -1,8 +1,15 @@
+import re
 import html
 
 class NotionParser:
     def __init__(self):
-        pass
+        self.headers = [] # Store headers for Table of Contents
+
+    def _slugify(self, text):
+        """Creates a URL-friendly slug from text."""
+        text = text.lower()
+        text = re.sub(r'[^\w\s-]', '', text)
+        return re.sub(r'[-\s]+', '-', text).strip('-')
 
     def blocks_to_html(self, blocks):
         """Converts a list of Notion blocks to a single HTML string."""
@@ -10,6 +17,7 @@ class NotionParser:
         in_list = False
         list_type = None
 
+        self.headers = [] # Reset headers for each conversion
         for block in blocks:
             b_type = block.get("type")
             
@@ -27,7 +35,16 @@ class NotionParser:
             elif b_type in ["heading_1", "heading_2", "heading_3"]:
                 h_tag = "h1" if b_type == "heading_1" else "h2" if b_type == "heading_2" else "h3"
                 text = self._rich_text_to_html(block.get(b_type, {}).get("rich_text", []))
-                html_output.append(f"<{h_tag}>{text}</{h_tag}>")
+                anchor_id = self._slugify(text)
+                
+                # Store metadata for ToC
+                self.headers.append({
+                    "text": text,
+                    "id": anchor_id,
+                    "level": int(h_tag[1])
+                })
+                
+                html_output.append(f'<{h_tag} id="{anchor_id}">{text}</{h_tag}>')
             
             elif b_type in ["bulleted_list_item", "numbered_list_item"]:
                 if not in_list:

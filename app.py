@@ -89,6 +89,7 @@ def post_detail(slug):
         post = notion_service.get_post_by_slug(slug)
         if post:
             post['html_content'] = notion_parser.blocks_to_html(post['content'])
+            post['toc'] = notion_parser.headers
             cache.set(cache_key, post)
     
     if not post:

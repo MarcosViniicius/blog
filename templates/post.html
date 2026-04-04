@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 
 {% block sidebar %}
-<div class="archive-nav" id="toc">
-    <!-- TOC will be injected here by JS -->
+<div class="archive-nav toc-sidebar">
+    <h3>TABLE OF CONTENTS</h3>
+    <ul class="archive-list-flat toc-list">
+        {% for header in post.toc %}
+            <li class="toc-item level-{{ header.level }}">
+                <a href="#{{ header.id }}" class="archive-link">{{ header.text }}</a>
+            </li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}
 
@@ -27,43 +34,4 @@
         <a href="{{ url_for('index') }}">&larr; Back to all posts</a>
     </div>
 </article>
-
-<script>
-    // Simple script to generate a Table of Contents
-    document.addEventListener('DOMContentLoaded', () => {
-        const headings = document.querySelectorAll('.post-content h2, .post-content h3, .post-content h4');
-        const toc = document.getElementById('toc');
-        
-        if (headings.length > 0) {
-            const tocTitle = document.createElement('h3');
-            tocTitle.textContent = 'On this page';
-            toc.appendChild(tocTitle);
-            
-            const ul = document.createElement('ul');
-            ul.className = 'archive-list-flat';
-            
-            headings.forEach((heading, index) => {
-                const id = 'heading-' + index;
-                heading.id = id;
-                
-                const li = document.createElement('li');
-                if (heading.tagName === 'H3') li.style.paddingLeft = '1rem';
-                if (heading.tagName === 'H4') li.style.paddingLeft = '2rem';
-                
-                const a = document.createElement('a');
-                a.href = '#' + id;
-                a.textContent = heading.textContent;
-                a.className = 'archive-link';
-                
-                li.appendChild(a);
-                ul.appendChild(li);
-            });
-            toc.appendChild(ul);
-        } else {
-            toc.style.display = 'none';
-        }
-    });
-
-    // Simple scroll spy logic would go here
-</script>
 {% endblock %}
