@@ -143,3 +143,7 @@ def page_not_found(e):
 
 if __name__ == '__main__':
     app.run(debug=(Config.FLASK_ENV == 'development'))
+
+@app.context_processor
+def inject_version():
+    return {"version": int(time.time())}
