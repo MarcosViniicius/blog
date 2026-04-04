@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title or 'Marcos Tech Blog' }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Prism.js or Highlight.js could be added here for code highlighting -->
+    <meta name="description" content="{{ description or 'A minimalist blog powered by Notion API.' }}">
+</head>
+<body>
+    <header>
+        <div class="container nav-container">
+            <a href="{{ url_for('index') }}" class="site-title">{{ config.BLOG_NAME }}</a>
+            <nav>
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('rss') }}">RSS</a>
+                <a href="https://github.com/vudovn/ag-kit" target="_blank">GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="container">
+        <p>&copy; {{ now.year }} {{ config.BLOG_NAME }}. Powered by Notion API & Flask.</p>
+    </footer>
+
+    <!-- Simple injected context for footer year -->
+    <script>
+        document.querySelector('footer p').innerHTML = '&copy; ' + new Date().getFullYear() + ' {{ config.BLOG_NAME }}. Powered by Notion API & Flask.';
+    </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article>
+    <header class="post-header">
+        <h1 class="title">{{ post.title }}</h1>
+        <div class="metadata">
+            <time datetime="{{ post.date }}">{{ post.date }}</time>
+            {% if post.tags %}
+                &bull; 
+                {% for tag in post.tags %}
+                    <span class="tag">#{{ tag }}</span>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="toc-container" id="toc">
+        <!-- TOC will be injected here by JS -->
+    </div>
+
+    <div class="post-content">
+        {{ post.html_content | safe }}
+    </div>
+
+    <div class="pagination">
+        <a href="{{ url_for('index') }}">&larr; Back to all posts</a>
+    </div>
+</article>
+
+<script>
+    // Simple script to generate a Table of Contents
+    document.addEventListener('DOMContentLoaded', () => {
+        const headings = document.querySelectorAll('.post-content h2, .post-content h3');
+        const toc = document.getElementById('toc');
+        
+        if (headings.length > 0) {
+            const tocTitle = document.createElement('h4');
+            tocTitle.textContent = 'Table of Contents';
+            toc.appendChild(tocTitle);
+            
+            const ul = document.createElement('ul');
+            headings.forEach((heading, index) => {
+                const id = 'heading-' + index;
+                heading.id = id;
+                
+                const li = document.createElement('li');
+                li.style.marginLeft = heading.tagName === 'H3' ? '1rem' : '0';
+                
+                const a = document.createElement('a');
+                a.href = '#' + id;
+                a.textContent = heading.textContent;
+                
+                li.appendChild(a);
+                ul.appendChild(li);
+            });
+            toc.appendChild(ul);
+        }
+    });
+</script>
+{% endblock %}

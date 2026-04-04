@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+    /* Dark Theme (Default) */
+    --bg-color: #111827;
+    --text-color: #e5e7eb;
+    --heading-color: #ffffff;
+    --accent-color: #3b82f6;
+    --border-color: #374151;
+    --code-bg: #1f2937;
+    --callout-bg: #1e293b;
+    --muted-text: #9ca3af;
+    --header-bg: rgba(17, 24, 39, 0.8);
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg-color: #ffffff;
+        --text-color: #111827;
+        --heading-color: #000000;
+        --accent-color: #2563eb;
+        --border-color: #e5e7eb;
+        --code-bg: #f3f4f6;
+        --callout-bg: #f1f5f9;
+        --muted-text: #6b7280;
+        --header-bg: rgba(255, 255, 255, 0.8);
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 19px;
+    line-height: 1.65;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Inter', sans-serif;
+    color: var(--heading-color);
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    line-height: 1.25;
+}
+
+p, ul, ol, blockquote, figure, .callout {
+    margin-bottom: 1.25em;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+a:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+/* Layout */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--header-bg);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 0;
+    margin-bottom: 3rem;
+}
+
+header .nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .site-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--heading-color);
+}
+
+header nav a {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    margin-left: 1.5rem;
+}
+
+/* Home Page */
+.year-group {
+    margin-bottom: 3rem;
+}
+
+.year-title {
+    font-size: 2rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.month-group {
+    margin-bottom: 2rem;
+    border-left: 1px solid var(--border-color);
+    padding-left: 1.5rem;
+}
+
+.month-title {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-text);
+    margin-top: 0;
+}
+
+.post-item {
+    margin: 1rem 0;
+}
+
+.post-item a {
+    font-size: 1.1rem;
+    color: var(--heading-color);
+}
+
+.post-item .date {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: var(--muted-text);
+    display: block;
+}
+
+/* Article Page */
+article .metadata {
+    margin-bottom: 2.5rem;
+    color: var(--muted-text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+}
+
+article h1.title {
+    font-size: 2.5rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+/* Content Styles */
+blockquote {
+    border-left: 4px solid var(--accent-color);
+    padding-left: 1.5rem;
+    font-style: italic;
+    color: var(--muted-text);
+}
+
+pre {
+    background-color: var(--code-bg);
+    padding: 1.25rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+}
+
+code {
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+
+:not(pre) > code {
+    background-color: var(--code-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+figure img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+figcaption {
+    font-size: 0.85rem;
+    color: var(--muted-text);
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.callout {
+    display: flex;
+    background-color: var(--callout-bg);
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-color);
+}
+
+.callout .icon {
+    margin-right: 1rem;
+}
+
+footer {
+    padding: 4rem 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: 4rem;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    color: var(--muted-text);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    body {
+        font-size: 17px;
+    }
+    article h1.title {
+        font-size: 2rem;
+    }
+}

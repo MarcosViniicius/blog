@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="archive">
+    {% for year_group in grouped_posts %}
+        <section class="year-group">
+            <h2 class="year-title">{{ year_group.year }}</h2>
+            
+            {% for month_group in year_group.months %}
+                <div class="month-group">
+                    <h3 class="month-title">{{ month_group.name }}</h3>
+                    
+                    {% for post in month_group.posts %}
+                        <div class="post-item">
+                            <span class="date">{{ post.date }}</span>
+                            <a href="{{ url_for('post_detail', slug=post.slug) }}">{{ post.title }}</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </section>
+    {% endfor %}
+    
+    {% if not grouped_posts %}
+        <p>No posts found yet. Check your Notion connection!</p>
+    {% endif %}
+</div>
+{% endblock %}
