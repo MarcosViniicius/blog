@@ -294,6 +294,14 @@ article h1.title {
     margin-top: 2rem;
 }
 
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 2rem auto;
+    border-radius: 12px;
+}
+
 /* --- Common UI --- */
 pre {
     background-color: var(--code-bg);
