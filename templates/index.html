@@ -3,14 +3,15 @@
 {% block sidebar %}
 <div class="archive-nav">
     <h3>Archive</h3>
-    <ul class="nav-list">
+    <ul class="archive-list-flat">
         {% for year_group in grouped_posts %}
-        <li class="nav-year">
-            <a href="#year-{{ year_group.year }}">
-                {{ year_group.year }}s
-            </a>
-            <!-- Sub-menu for months could be added here if desired -->
-        </li>
+            {% for month_group in year_group.months %}
+            <li>
+                <a href="#archive-{{ year_group.year }}-{{ month_group.name }}" class="archive-link">
+                    {{ year_group.year }} - {{ month_group.name }}
+                </a>
+            </li>
+            {% endfor %}
         {% endfor %}
     </ul>
 </div>

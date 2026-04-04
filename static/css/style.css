@@ -224,70 +224,94 @@ a {
     padding-left: 1rem;
 }
 
-/* --- Content Page Styles --- */
-.main-content {
-    padding: 3rem 0;
+/* --- Content Layout --- */
+.container {
+    max-width: 1100px; /* Increased to allow sidebar + content */
+    margin: 0 auto;
+    padding: 0 1.5rem;
 }
 
-.year-group {
-    margin-bottom: 4rem;
+.main-layout {
+    display: flex;
+    gap: 4rem;
+    align-items: flex-start;
 }
 
-.year-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 2rem;
-    color: var(--accent-color);
-    opacity: 0.9;
-}
-
-.month-group {
-    margin-bottom: 2.5rem;
-    border-left: 2px solid var(--border-color);
-    padding-left: 2rem;
-}
-
-.month-title {
-    color: var(--muted-text);
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 1rem;
-}
-
-.post-item {
-    margin-bottom: 1.5rem;
-}
-
-.post-item a {
-    font-size: 1.3rem;
-    color: var(--heading-color);
-    font-weight: 600;
-}
-
-.post-item a:hover {
-    color: var(--accent-color);
-}
-
-.post-item .date {
-    font-size: 0.85rem;
-    color: var(--muted-text);
-    font-family: 'Inter', sans-serif;
-    margin-bottom: 0.25rem;
+.desktop-sidebar {
+    flex: 0 0 220px;
     display: block;
 }
 
-/* --- Article Detail --- */
-article .metadata {
-    color: var(--muted-text);
-    font-size: 0.95rem;
+.sidebar-sticky {
+    position: sticky;
+    top: 6rem;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+    padding: 2rem 0;
+}
+
+/* Hide desktop sidebar on smaller screens */
+@media (max-width: 1024px) {
+    .main-layout {
+        display: block;
+    }
+    .desktop-sidebar {
+        display: none;
+    }
+}
+
+/* --- Archive Sidebar Styling (Akita Style) --- */
+.archive-nav h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--heading-color);
     margin-bottom: 2rem;
 }
 
+.archive-list-flat {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.archive-link {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--muted-text);
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+
+.archive-link:hover {
+    color: var(--heading-color);
+}
+
+.archive-link.active {
+    color: var(--heading-color);
+}
+
+/* --- Article Detail & Typography --- */
+.post-header {
+    margin-bottom: 3rem;
+}
+
 article h1.title {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 3.5rem;
+    font-weight: 800;
     line-height: 1.1;
+    margin-bottom: 1rem;
+    letter-spacing: -0.03em;
+}
+
+article .metadata {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: var(--muted-text);
 }
 
 .post-content {
@@ -298,31 +322,49 @@ article h1.title {
     max-width: 100%;
     height: auto;
     display: block;
-    margin: 2rem auto;
+    margin: 2.5rem auto;
     border-radius: 12px;
 }
 
-/* --- Common UI --- */
+.post-content p {
+    margin-bottom: 1.5rem;
+}
+
+/* --- Common UI Components --- */
 pre {
     background-color: var(--code-bg);
     padding: 1.5rem;
     border-radius: 12px;
     overflow-x: auto;
     border: 1px solid var(--border-color);
-    margin-bottom: 2rem;
+    margin: 2rem 0;
 }
 
 code {
-    font-family: 'Menlo', monospace;
-    font-size: 0.9em;
+    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.85em;
+}
+
+:not(pre) > code {
+    background-color: var(--code-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
 }
 
 blockquote {
     border-left: 4px solid var(--accent-color);
-    padding-left: 2rem;
+    padding: 0.5rem 0 0.5rem 2rem;
     font-style: italic;
     color: var(--muted-text);
-    margin: 2rem 0;
+    margin: 2.5rem 0;
+    font-size: 1.1rem;
+}
+
+.pagination {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
 }
 
 footer {
@@ -334,13 +376,22 @@ footer {
 }
 
 /* --- Mobile Specific --- */
+@media (max-width: 1024px) {
+    .main-layout {
+        display: block;
+    }
+    .desktop-sidebar {
+        display: none;
+    }
+}
+
 @media (max-width: 640px) {
     body {
         font-size: 17px;
     }
     
     article h1.title {
-        font-size: 2rem;
+        font-size: 2.25rem;
     }
     
     .year-title {

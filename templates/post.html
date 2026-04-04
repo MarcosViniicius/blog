@@ -42,21 +42,20 @@
             toc.appendChild(tocTitle);
             
             const ul = document.createElement('ul');
-            ul.className = 'nav-list';
+            ul.className = 'archive-list-flat';
             
             headings.forEach((heading, index) => {
                 const id = 'heading-' + index;
                 heading.id = id;
                 
                 const li = document.createElement('li');
-                li.className = 'nav-item';
                 if (heading.tagName === 'H3') li.style.paddingLeft = '1rem';
                 if (heading.tagName === 'H4') li.style.paddingLeft = '2rem';
                 
                 const a = document.createElement('a');
                 a.href = '#' + id;
                 a.textContent = heading.textContent;
-                a.className = 'toc-link';
+                a.className = 'archive-link';
                 
                 li.appendChild(a);
                 ul.appendChild(li);
