@@ -28,7 +28,15 @@ class NotionService:
             return posts
 
         url = f"{self.api_base_url}/databases/{self.database_id}/query"
-        payload = {}
+        # Sort by creation time descending (newest first)
+        payload = {
+            "sorts": [
+                {
+                    "timestamp": "created_time",
+                    "direction": "descending"
+                }
+            ]
+        }
         
         try:
             response = requests.post(url, headers=self.headers, json=payload)

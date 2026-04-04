@@ -314,18 +314,39 @@ article .metadata {
     color: var(--muted-text);
 }
 
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+}
+
 .post-content {
     margin-top: 2rem;
+    width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* Aggressive constraint for all elements inside post content */
+.post-content * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .post-content img, 
 .post-content figure {
-    max-width: 100%;
-    max-inline-size: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-inline-size: 100% !important;
     height: auto !important;
     display: block;
     margin: 2.5rem auto;
     border-radius: 12px;
+    object-fit: contain;
+}
+
+.post-content figure {
+    height: auto !important;
 }
 
 .post-content figure img {
