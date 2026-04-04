@@ -31,7 +31,10 @@ class NotionService:
             
             posts = []
             for item in data.get("results", []):
-                posts.append(self._parse_post_metadata(item))
+                post_metadata = self._parse_post_metadata(item)
+                # Filter: Only include posts that have "Produção" in their status/tags
+                if "Produção" in post_metadata.get("status_values", []):
+                    posts.append(post_metadata)
             return posts
         except Exception as e:
             # Enhanced error logging for debugging
@@ -60,8 +63,10 @@ class NotionService:
                 results = response.json().get("results", [])
                 if results:
                     post_metadata = self._parse_post_metadata(results[0])
-                    post_metadata['content'] = self.get_post_content(results[0]['id'])
-                    return post_metadata
+                    # Security Check: Only allow viewing if status is "Produção"
+                    if "Produção" in post_metadata.get("status_values", []):
+                        post_metadata['content'] = self.get_post_content(results[0]['id'])
+                        return post_metadata
             
             # 2. If query fails (e.g. no 'Slug' column) or not found, try fetching by ID directly
             # Notion IDs are 32 chars, often with dashes (total 36)
@@ -72,8 +77,13 @@ class NotionService:
                 if response.status_code == 200:
                     page_data = response.json()
                     post_metadata = self._parse_post_metadata(page_data)
-                    post_metadata['content'] = self.get_post_content(page_data['id'])
-                    return post_metadata
+                    
+                    # Security Check: Only allow viewing if status is "Produção"
+                    if "Produção" in post_metadata.get("status_values", []):
+                        post_metadata['content'] = self.get_post_content(page_data['id'])
+                        return post_metadata
+                    else:
+                        print(f"Skipping post {slug} because its status is not 'Produção'")
                     
         except Exception as e:
             print(f"Error fetching post by slug/id '{slug}': {e}")
@@ -126,11 +136,24 @@ class NotionService:
                     publish_date = p_val.get("date").get("start")
                     break
 
+        # 4. Collect all status-like values for resilient filtering
+        status_values = []
+        for p_name, p_val in props.items():
+            p_type = p_val.get("type")
+            if p_type == "status" and p_val.get("status"):
+                status_values.append(p_val["status"].get("name"))
+            elif p_type == "select" and p_val.get("select"):
+                status_values.append(p_val["select"].get("name"))
+            elif p_type == "multi_select" and p_val.get("multi_select"):
+                for s in p_val["multi_select"]:
+                    status_values.append(s.get("name"))
+
         return {
             "id": item.get("id"),
             "title": title,
             "slug": slug,
             "date": publish_date,
             "tags": [tag.get("name") for tag in props.get("Tags", {}).get("multi_select", [])] if "Tags" in props else [],
+            "status_values": status_values,
             "last_edited": item.get("last_edited_time")
         }
