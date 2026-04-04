@@ -6,6 +6,7 @@ from config import Config
 from feedgen.feed import FeedGenerator
 from datetime import datetime
 import collections
+import time
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -144,6 +145,9 @@ def page_not_found(e):
 if __name__ == '__main__':
     app.run(debug=(Config.FLASK_ENV == 'development'))
 
+
+BUILD_VERSION = str(int(time.time()))
+
 @app.context_processor
-def inject_version():
-    return {"version": int(time.time())}
+def inject_version():   
+    return {"version": BUILD_VERSION}
