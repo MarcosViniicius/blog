@@ -151,3 +151,10 @@ BUILD_VERSION = str(int(time.time()))
 @app.context_processor
 def inject_version():   
     return {"version": BUILD_VERSION}
+
+@app.after_request
+def add_cache_headers(response):
+    if app.debug:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+    return response

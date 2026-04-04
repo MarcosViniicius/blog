@@ -30,7 +30,7 @@
                     <div class="posts-list">
                         {% for post in month_group.posts %}
                             <div class="post-item">
-                                <span class="date">{{ post.date or post.last_edited[:10] }}</span>
+                                <span class="date">{% set raw = (post.date or post.last_edited[:10]) | string %} {{ raw[8:10] }}/{{ raw[5:7] }}/{{ raw[0:4] }}</span>
                                 <a href="{{ url_for('post_detail', slug=post.slug) }}" class="post-title-link">
                                     {{ post.title }}
                                 </a>
