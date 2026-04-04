@@ -10,9 +10,12 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
     
     # Cache settings (in seconds)
-    CACHE_TIMEOUT = int(os.getenv('CACHE_TIMEOUT', 3600))  # Default 1 hour
+    CACHE_TYPE = os.getenv('CACHE_TYPE', 'FileSystemCache')
+    CACHE_DIR = os.getenv('CACHE_DIR', '.flask_cache')
+    CACHE_LIST_TIMEOUT = int(os.getenv('CACHE_LIST_TIMEOUT', 300))  # 5 minutes
+    CACHE_POST_TIMEOUT = int(os.getenv('CACHE_POST_TIMEOUT', 86400)) # 24 hours
     
     # Blog details
-    BLOG_NAME = os.getenv('BLOG_NAME', 'Akita Inspired Blog')
+    BLOG_NAME = os.getenv('BLOG_NAME', 'Marcos Tech Blog')
     BLOG_DESCRIPTION = os.getenv('BLOG_DESCRIPTION', 'A minimalist blog powered by Notion API.')
     BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')

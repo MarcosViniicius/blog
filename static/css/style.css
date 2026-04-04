@@ -318,12 +318,18 @@ article .metadata {
     margin-top: 2rem;
 }
 
-.post-content img {
+.post-content img, 
+.post-content figure {
     max-width: 100%;
-    height: auto;
+    max-inline-size: 100%;
+    height: auto !important;
     display: block;
     margin: 2.5rem auto;
     border-radius: 12px;
+}
+
+.post-content figure img {
+    margin: 0;
 }
 
 .post-content p {

@@ -12,12 +12,6 @@
         <h1 class="title">{{ post.title }}</h1>
         <div class="metadata">
             <time datetime="{{ post.date }}">{{ post.date or post.last_edited[:10] }}</time>
-            {% if post.tags %}
-                &bull; 
-                {% for tag in post.tags %}
-                    <span class="tag">#{{ tag }}</span>{% if not loop.last %}, {% endif %}
-                {% endfor %}
-            {% endif %}
         </div>
     </header>
 
@@ -25,6 +19,9 @@
         {{ post.html_content | safe }}
     </div>
 
+    <div>   
+        <p> Upvote </p>
+    </div>
     <div class="pagination">
         <a href="{{ url_for('index') }}">&larr; Back to all posts</a>
     </div>

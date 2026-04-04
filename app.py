@@ -10,6 +10,11 @@ import collections
 app = Flask(__name__)
 app.config.from_object(Config)
 
+# Configure Flask-Caching
+app.config['CACHE_TYPE'] = Config.CACHE_TYPE
+app.config['CACHE_DIR'] = Config.CACHE_DIR
+cache.init_app(app)
+
 notion_service = NotionService()
 notion_parser = NotionParser()
 
@@ -92,14 +97,12 @@ def post_detail(slug):
     return render_template('post.html', post=post)
 
 @app.route('/rss')
+@cache.cached(timeout=Config.CACHE_LIST_TIMEOUT) # Cache the entire XML response
 def rss():
-    """Generates the RSS feed."""
-    posts = cache.get("all_posts")
-    if posts is None:
-        posts = notion_service.get_blog_posts()
-        cache.set("all_posts", posts)
-        
-    # Limit RSS to the last 15 posts for performance
+    """Generates the RSS feed using optimized caching."""
+    posts = notion_service.get_blog_posts()
+    
+    # Limit RSS to the last 15 posts
     latest_posts = posts[:15]
         
     fg = FeedGenerator()
@@ -109,15 +112,20 @@ def rss():
     fg.link(href=Config.BASE_URL, rel='alternate')
     
     for post in latest_posts:
-        # Fetch full content for RSS
-        content_blocks = notion_service.get_post_content(post['id'])
-        html_content = notion_parser.blocks_to_html(content_blocks)
+        # Use the intelligent cache from get_post_by_slug to avoid redundant Notion calls
+        # We fetch by slug or use a dedicated cached method
+        full_post = notion_service.get_post_by_slug(post['slug'])
+        
+        if not full_post:
+            continue
+            
+        html_content = notion_parser.blocks_to_html(full_post['content'])
         
         fe = fg.add_entry()
         fe.id(f"{Config.BASE_URL}/post/{post['slug']}")
         fe.title(post['title'])
         fe.link(href=f"{Config.BASE_URL}/post/{post['slug']}")
-        fe.content(html_content, type='html') # Full HTML content
+        fe.content(html_content, type='html')
         
         if post['date']:
             try:

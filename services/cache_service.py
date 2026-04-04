@@ -1,31 +1,22 @@
-import time
-from config import Config
+from flask_caching import Cache
 
+# We initialize with a simple instance and will bind it to the app in app.py
+cache = Cache()
+
+# For helper methods or specific logic if needed
 class CacheService:
-    def __init__(self):
-        self._cache = {}
-        self._timeout = Config.CACHE_TIMEOUT
+    @staticmethod
+    def get(key):
+        return cache.get(key)
 
-    def get(self, key):
-        """Retrieve a value from the cache if it hasn't expired."""
-        if key in self._cache:
-            item = self._cache[key]
-            if time.time() < item['expiry']:
-                return item['value']
-            else:
-                del self._cache[key]
-        return None
+    @staticmethod
+    def set(key, value, timeout=None):
+        return cache.set(key, value, timeout=timeout)
 
-    def set(self, key, value):
-        """Store a value in the cache with the default timeout."""
-        self._cache[key] = {
-            'value': value,
-            'expiry': time.time() + self._timeout
-        }
+    @staticmethod
+    def delete(key):
+        return cache.delete(key)
 
-    def clear(self):
-        """Clear all cached items."""
-        self._cache = {}
-
-# Singleton instance
-cache = CacheService()
+    @staticmethod
+    def clear():
+        return cache.clear()

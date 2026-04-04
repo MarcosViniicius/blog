@@ -18,10 +18,16 @@ class NotionService:
             print("WARNING: Notion Database ID is missing or using placeholder (check .env file)")
 
     def get_blog_posts(self):
-        """Fetches all posts from the Notion database without strict filtering to avoid 400 errors."""
-        url = f"{self.api_base_url}/databases/{self.database_id}/query"
+        """Fetches posts from cache or Notion, grouped by 'Produção' status."""
+        from services.cache_service import cache
         
-        # We start with an empty body to fetch everything, avoiding property name/type conflicts
+        cache_key = "all_posts_metadata"
+        posts = cache.get(cache_key)
+        
+        if posts is not None:
+            return posts
+
+        url = f"{self.api_base_url}/databases/{self.database_id}/query"
         payload = {}
         
         try:
@@ -32,75 +38,72 @@ class NotionService:
             posts = []
             for item in data.get("results", []):
                 post_metadata = self._parse_post_metadata(item)
-                # Filter: Only include posts that have "Produção" in their status/tags
                 if "Produção" in post_metadata.get("status_values", []):
                     posts.append(post_metadata)
+            
+            # Cache the listing for a short duration (e.g. 5 mins)
+            cache.set(cache_key, posts, timeout=Config.CACHE_LIST_TIMEOUT)
             return posts
         except Exception as e:
-            # Enhanced error logging for debugging
-            if hasattr(e, 'response') and e.response is not None:
-                print(f"Notion API Error: {e.response.status_code} - {e.response.text}")
-            else:
-                print(f"Error fetching Notion posts: {e}")
+            print(f"Error fetching Notion posts: {e}")
             return []
 
     def get_post_by_slug(self, slug):
-        """Finds a post by its slug or directly by ID if the slug looks like a UUID."""
-        # 1. Try querying the database by Slug property
-        url = f"{self.api_base_url}/databases/{self.database_id}/query"
-        payload = {
-            "filter": {
-                "property": "Slug",
-                "rich_text": {
-                    "equals": slug
-                }
-            }
-        }
+        """Finds a post by slug with intelligent cache invalidation based on last_edited_time."""
+        from services.cache_service import cache
         
+        # 1. Get current metadata from the (short-term) list to check for updates
+        all_posts = self.get_blog_posts()
+        current_meta = next((p for p in all_posts if p['slug'] == slug), None)
+        
+        if not current_meta:
+            return None
+
+        # 2. Check long-term content cache
+        cache_key = f"post_full_{slug}"
+        cached_post = cache.get(cache_key)
+        
+        if cached_post:
+            # Check if the post was updated in Notion since it was cached
+            if current_meta['last_edited'] == cached_post.get('last_edited'):
+                return cached_post
+            else:
+                print(f"Post '{slug}' updated in Notion! Refreshing cache...")
+                cache.delete(cache_key)
+
+        # 3. Fetch fresh content if not cached or stale
         try:
-            response = requests.post(url, headers=self.headers, json=payload)
-            if response.status_code == 200:
-                results = response.json().get("results", [])
-                if results:
-                    post_metadata = self._parse_post_metadata(results[0])
-                    # Security Check: Only allow viewing if status is "Produção"
-                    if "Produção" in post_metadata.get("status_values", []):
-                        post_metadata['content'] = self.get_post_content(results[0]['id'])
-                        return post_metadata
+            # We already have metadata from the list, just need the blocks
+            current_meta['content'] = self.get_post_content(current_meta['id'])
             
-            # 2. If query fails (e.g. no 'Slug' column) or not found, try fetching by ID directly
-            # Notion IDs are 32 chars, often with dashes (total 36)
-            clean_slug = slug.replace("-", "")
-            if len(clean_slug) == 32:
-                page_url = f"{self.api_base_url}/pages/{slug}"
-                response = requests.get(page_url, headers=self.headers)
-                if response.status_code == 200:
-                    page_data = response.json()
-                    post_metadata = self._parse_post_metadata(page_data)
-                    
-                    # Security Check: Only allow viewing if status is "Produção"
-                    if "Produção" in post_metadata.get("status_values", []):
-                        post_metadata['content'] = self.get_post_content(page_data['id'])
-                        return post_metadata
-                    else:
-                        print(f"Skipping post {slug} because its status is not 'Produção'")
-                    
+            # Cache the full post for a long time (it will be invalidated by the check above)
+            cache.set(cache_key, current_meta, timeout=Config.CACHE_POST_TIMEOUT)
+            return current_meta
         except Exception as e:
-            print(f"Error fetching post by slug/id '{slug}': {e}")
+            print(f"Error refreshing post '{slug}': {e}")
             
         return None
 
     def get_post_content(self, page_id):
-        """Fetches all blocks (content) for a given page ID."""
+        """Fetches blocks (content) for a given page ID with pagination support."""
+        blocks = []
         url = f"{self.api_base_url}/blocks/{page_id}/children"
         
         try:
-            # Note: Notion API paginates blocks, simple implementation for now
-            response = requests.get(url, headers=self.headers)
-            response.raise_for_status()
-            return response.json().get("results", [])
+            while url:
+                response = requests.get(url, headers=self.headers)
+                response.raise_for_status()
+                data = response.json()
+                blocks.extend(data.get("results", []))
+                
+                # Support pagination for articles > 100 blocks
+                if data.get("has_more"):
+                    url = f"{self.api_base_url}/blocks/{page_id}/children?start_cursor={data['next_cursor']}"
+                else:
+                    url = None
+            return blocks
         except Exception as e:
-            print(f"Error fetching post content for page {page_id}: {e}")
+            print(f"Error fetching blocks for {page_id}: {e}")
             return []
 
     def _parse_post_metadata(self, item):
