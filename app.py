@@ -1,6 +1,7 @@
 from flask import Flask, render_template, abort, Response, redirect, url_for
+from flask_compress import Compress
 from services.notion_service import NotionService
-from services.cache_service import cache
+from services.cache_service import CacheService, cache
 from utils.parser import NotionParser
 from config import Config
 from feedgen.feed import FeedGenerator
@@ -9,6 +10,7 @@ import collections
 import time
 
 app = Flask(__name__)
+Compress(app)
 app.config.from_object(Config)
 
 # Configure Flask-Caching
@@ -29,10 +31,10 @@ def inject_globals():
 
 def get_grouped_posts():
     """Fetches and groups posts by year and month for the index page."""
-    posts = cache.get("all_posts")
+    posts = CacheService.cache_get("all_posts")
     if posts is None:
         posts = notion_service.get_blog_posts()
-        cache.set("all_posts", posts)
+        CacheService.cache_set("all_posts", posts, timeout=Config.CACHE_LIST_TIMEOUT)
     
     # Group by year and then by month
     grouped = collections.defaultdict(lambda: collections.defaultdict(list))
@@ -84,14 +86,14 @@ def index():
 def post_detail(slug):
     """Specific blog post page."""
     cache_key = f"post_{slug}"
-    post = cache.get(cache_key)
+    post = CacheService.cache_get(cache_key)
     
     if post is None:
         post = notion_service.get_post_by_slug(slug)
         if post:
             post['html_content'] = notion_parser.blocks_to_html(post['content'])
             post['toc'] = notion_parser.headers
-            cache.set(cache_key, post)
+            CacheService.cache_set(cache_key, post, timeout=Config.CACHE_POST_TIMEOUT)
     
     if not post:
         abort(404)

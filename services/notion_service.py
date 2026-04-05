@@ -19,10 +19,10 @@ class NotionService:
 
     def get_blog_posts(self):
         """Fetches posts from cache or Notion, grouped by 'Produção' status."""
-        from services.cache_service import cache
+        from services.cache_service import CacheService
         
         cache_key = "all_posts_metadata"
-        posts = cache.get(cache_key)
+        posts = CacheService.cache_get(cache_key)
         
         if posts is not None:
             return posts
@@ -50,7 +50,7 @@ class NotionService:
                     posts.append(post_metadata)
             
             # Cache the listing for a short duration (e.g. 5 mins)
-            cache.set(cache_key, posts, timeout=Config.CACHE_LIST_TIMEOUT)
+            CacheService.cache_set(cache_key, posts, timeout=Config.CACHE_LIST_TIMEOUT)
             return posts
         except Exception as e:
             print(f"Error fetching Notion posts: {e}")
@@ -58,7 +58,7 @@ class NotionService:
 
     def get_post_by_slug(self, slug):
         """Finds a post by slug with intelligent cache invalidation based on last_edited_time."""
-        from services.cache_service import cache
+        from services.cache_service import CacheService
         
         # 1. Get current metadata from the (short-term) list to check for updates
         all_posts = self.get_blog_posts()
@@ -69,7 +69,7 @@ class NotionService:
 
         # 2. Check long-term content cache
         cache_key = f"post_full_{slug}"
-        cached_post = cache.get(cache_key)
+        cached_post = CacheService.cache_get(cache_key)
         
         if cached_post:
             # Check if the post was updated in Notion since it was cached
@@ -77,7 +77,7 @@ class NotionService:
                 return cached_post
             else:
                 print(f"Post '{slug}' updated in Notion! Refreshing cache...")
-                cache.delete(cache_key)
+                CacheService.cache_delete(cache_key)
 
         # 3. Fetch fresh content if not cached or stale
         try:
@@ -85,7 +85,7 @@ class NotionService:
             current_meta['content'] = self.get_post_content(current_meta['id'])
             
             # Cache the full post for a long time (it will be invalidated by the check above)
-            cache.set(cache_key, current_meta, timeout=Config.CACHE_POST_TIMEOUT)
+            CacheService.cache_set(cache_key, current_meta, timeout=Config.CACHE_POST_TIMEOUT)
             return current_meta
         except Exception as e:
             print(f"Error refreshing post '{slug}': {e}")
@@ -168,3 +168,4 @@ class NotionService:
             "status_values": status_values,
             "last_edited": item.get("last_edited_time")
         }
+    

@@ -1,22 +1,40 @@
 from flask_caching import Cache
+import zlib
+import msgpack
+from config import Config
+
 
 # We initialize with a simple instance and will bind it to the app in app.py
 cache = Cache()
 
+
+def _compress(data):
+    return zlib.compress(msgpack.packb(data))
+
+def _decompress(data):
+    return msgpack.unpackb(zlib.decompress(data))
+    
+
 # For helper methods or specific logic if needed
 class CacheService:
     @staticmethod
-    def get(key):
-        return cache.get(key)
+    def cache_set(key, value, timeout=Config.CACHE_LIST_TIMEOUT):
+        compressed = _compress(value)
+        cache.set(key, compressed, timeout=timeout)
 
     @staticmethod
-    def set(key, value, timeout=None):
-        return cache.set(key, value, timeout=timeout)
+    def cache_get(key):
+        data = cache.get(key)
+        if data:
+            return _decompress(data)
+        return None
 
     @staticmethod
-    def delete(key):
+    def cache_delete(key):
         return cache.delete(key)
 
     @staticmethod
-    def clear():
+    def cache_clear():
         return cache.clear()
+
+
