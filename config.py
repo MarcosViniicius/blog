@@ -19,7 +19,7 @@ class Config:
         CACHE_DIR = os.getenv('CACHE_DIR', '.flask_cache')
         
     CACHE_LIST_TIMEOUT = int(os.getenv('CACHE_LIST_TIMEOUT', 300))  # 5 minutes
-    CACHE_POST_TIMEOUT = int(os.getenv('CACHE_POST_TIMEOUT', 86400)) # 24 hours
+    CACHE_POST_TIMEOUT = int(os.getenv('CACHE_POST_TIMEOUT', 3600)) # 1 hour
     
     # Blog details
     BLOG_NAME = os.getenv('BLOG_NAME', 'Marcos Tech Blog')
