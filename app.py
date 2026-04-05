@@ -140,10 +140,6 @@ def rss():
             
     return Response(fg.rss_str(pretty=True), mimetype='application/xml')
 
-@app.route('/loaderio-ea0200b0d2a7f2e2d944f62e114ba3a3.txt')
-def loaderio():
-    return "loaderio-ea0200b0d2a7f2e2d944f62e114ba3a3"
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('base.html', content="<h1>404 - Page Not Found</h1><p>The post you are looking for does not exist.</p>"), 404
